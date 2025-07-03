@@ -1,0 +1,27 @@
+﻿@using UCStatistics.Shared.DTOs
+<select class="form-select" @onchange="OnChange">
+    <option value="">-- All Cities --</option>
+    @foreach (var c in Cities)
+    {
+        <option value="@c.Level2Nr" selected="@(Value == c.Level2Nr)">
+            @c.Level2Name
+        </option>
+    }
+</select>
+
+@code {
+    [Parameter] public int? Value { get; set; }
+    [Parameter] public EventCallback<int?> ValueChanged { get; set; }
+
+    [Parameter] public IEnumerable<OfficeInfo> Cities { get; set; }
+
+    private async Task OnChange(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var v))
+            Value = v;
+        else
+            Value = null;
+
+        await ValueChanged.InvokeAsync(Value);
+    }
+}

@@ -1,0 +1,70 @@
+﻿@page "/historical"
+@using UCStatistics.Services
+@using UCStatistics.Shared.DTOs
+@using UCStatistics.Components.Filters
+@using UCStatistics.Components.Tables
+@inject ReportService ReportService
+
+<PageTitle>Historical Statistics</PageTitle>
+
+<h3>Historical Statistics</h3>
+
+<EditForm Model="criteria" OnValidSubmit="LoadData">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="d-flex flex-wrap gap-3 mb-3">
+        <DateRangePicker @bind-DateFrom="criteria.DateFrom"
+                         @bind-DateTo="criteria.DateTo" />
+
+        <AreaDropdown @bind-Value="criteria.Level3Nr"
+                      Areas="officesList" />
+
+        <CityDropdown @bind-Value="criteria.Level2Nr"
+                      Cities="officesList" />
+
+        <BranchDropdown @bind-Value="criteria.OfficeNrs"
+                        Offices="officesList" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Load Data</button>
+</EditForm>
+
+@if (isLoading)
+{
+    <p><em>Loading...</em></p>
+}
+else if (data is not null)
+{
+    <SummaryTable Data="data" />
+}
+
+@code {
+    private List<OfficeInfo> officesList = new();
+
+    private FilterCriteria criteria = new FilterCriteria
+        {
+            DateFrom = DateTime.Today.AddDays(-7),
+            DateTo = DateTime.Today,
+            Level2Nr = null,
+            Level3Nr = null,
+            OfficeNrs = new List<int>()
+        };
+
+    private IEnumerable<SummaryDto> data;
+    private bool isLoading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        officesList = (await ReportService.GetOfficesAsync()).ToList();
+
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        isLoading = true;
+        data = await ReportService.GetHistoricalAsync(criteria);
+        isLoading = false;
+    }
+}

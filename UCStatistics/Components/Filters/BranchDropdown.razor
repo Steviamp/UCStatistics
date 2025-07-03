@@ -1,0 +1,23 @@
+﻿@using UCStatistics.Shared.DTOs
+<select multiple class="form-select" @onchange="OnSelectionChanged">
+    @foreach (var o in Offices)
+    {
+        <option value="@o.OfficeNr" selected="@Value.Contains(o.OfficeNr)">
+            @o.OfficeName
+        </option>
+    }
+</select>
+
+@code {
+    [Parameter] public List<int> Value { get; set; } = new();
+    [Parameter] public EventCallback<List<int>> ValueChanged { get; set; }
+
+    [Parameter] public IEnumerable<OfficeInfo> Offices { get; set; }
+
+    private async Task OnSelectionChanged(ChangeEventArgs e)
+    {
+        var selected = ((string[])e.Value).Select(int.Parse).ToList();
+        Value = selected;
+        await ValueChanged.InvokeAsync(Value);
+    }
+}

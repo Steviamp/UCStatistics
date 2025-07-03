@@ -1,0 +1,47 @@
+﻿@using System
+@using Microsoft.AspNetCore.Components
+
+<div class="date-range-picker d-flex align-items-center gap-2">
+    <input type="date"
+           class="form-control"
+           value="@DateFrom.ToString("yyyy-MM-dd")"
+           @onchange="OnDateFromChange" />
+    <span class="mx-2">to</span>
+    <input type="date"
+           class="form-control"
+           value="@DateTo.ToString("yyyy-MM-dd")"
+           @onchange="OnDateToChange" />
+</div>
+
+@code {
+    [Parameter]
+    public DateTime DateFrom { get; set; }
+
+    [Parameter]
+    public EventCallback<DateTime> DateFromChanged { get; set; }
+
+    [Parameter]
+    public DateTime DateTo { get; set; }
+
+    [Parameter]
+    public EventCallback<DateTime> DateToChanged { get; set; }
+
+    private async Task OnDateFromChange(ChangeEventArgs e)
+    {
+        if (DateTime.TryParse(e.Value?.ToString(), out var d))
+        {
+            DateFrom = d;
+            await DateFromChanged.InvokeAsync(d);
+        }
+    }
+
+    private async Task OnDateToChange(ChangeEventArgs e)
+    {
+        if (DateTime.TryParse(e.Value?.ToString(), out var d))
+        {
+            DateTo = d;
+            await DateToChanged.InvokeAsync(d);
+        }
+    }
+}
+
