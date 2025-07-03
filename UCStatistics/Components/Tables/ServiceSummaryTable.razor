@@ -1,5 +1,40 @@
-﻿<h3>ServiceSummaryTable</h3>
+﻿@using UCStatistics.Shared.DTOs
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Area</th>
+            <th>City</th>
+            <th>Office</th>
+            <th>Service Code</th>
+            <th>Service Name</th>
+            <th>Total Services</th>
+            <th>Avg Service (sec)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Data?.Any() != true)
+        {
+            <tr><td colspan="7" class="text-center">No data available</td></tr>
+        }
+        else
+        {
+            @foreach (var item in Data)
+            {
+                <tr>
+                    <td>@item.Level3Name</td>
+                    <td>@item.Level2Name</td>
+                    <td>@item.OfficeName</td>
+                    <td>@item.ServiceCode</td>
+                    <td>@item.ServiceName</td>
+                    <td>@item.TotalServices</td>
+                    <td>@item.AvgServiceSeconds:F2</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
 
 @code {
-
+    [Parameter]
+    public IEnumerable<ServiceSummaryDto> Data { get; set; }
 }

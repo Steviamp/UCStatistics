@@ -9,20 +9,18 @@
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="flex-column">
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+            <NavLink class="nav-link" href="historical" Match="NavLinkMatch.Prefix">
+                <span class="bi bi-bar-chart-fill"></span> Historical
             </NavLink>
         </div>
-
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
+            <NavLink class="nav-link" href="live" Match="NavLinkMatch.Prefix">
+                <span class="bi bi-clock-fill"></span> Live
             </NavLink>
         </div>
-
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
+            <NavLink class="nav-link" href="settings" Match="NavLinkMatch.Prefix">
+                <span class="bi bi-gear-fill"></span> Settings
             </NavLink>
         </div>
     </nav>

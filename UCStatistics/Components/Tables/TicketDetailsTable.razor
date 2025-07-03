@@ -1,5 +1,44 @@
-﻿<h3>TicketDetailsTable</h3>
+﻿@using UCStatistics.Shared.DTOs
+<table class="table table-striped table-sm">
+    <thead>
+        <tr>
+            <th>Area</th>
+            <th>City</th>
+            <th>Office</th>
+            <th>Service Code</th>
+            <th>Ticket #</th>
+            <th>Entry Time</th>
+            <th>Exit Time</th>
+            <th>Wait (sec)</th>
+            <th>Service (sec)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Data?.Any() != true)
+        {
+            <tr><td colspan="9" class="text-center">No data available</td></tr>
+        }
+        else
+        {
+            @foreach (var item in Data)
+            {
+                <tr>
+                    <td>@item.Level3Name</td>
+                    <td>@item.Level2Name</td>
+                    <td>@item.OfficeName</td>
+                    <td>@item.ServiceCode</td>
+                    <td>@item.TicketNumber</td>
+                    <td>@item.EntryTime:yyyy-MM-dd HH:mm:ss</td>
+                    <td>@item.ExitTime:yyyy-MM-dd HH:mm:ss</td>
+                    <td>@item.WaitSeconds</td>
+                    <td>@item.ServiceSeconds</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
 
 @code {
-
+    [Parameter]
+    public IEnumerable<TicketDto> Data { get; set; }
 }
