@@ -1,34 +1,56 @@
-﻿@using UCStatistics.Shared.DTOs
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Area</th>
-            <th>City</th>
-            <th>Office</th>
-            <th>Total Tickets</th>
-            <th>Avg Service (sec)</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (Data?.Any() != true)
-        {
-            <tr><td colspan="5" class="text-center">No data available</td></tr>
-        }
-        else
-        {
-            @foreach (var item in Data)
+﻿@using System.Linq
+@using UCStatistics.Shared.DTOs
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>O. Nr</th>
+                <th>Branch Name</th>
+                <th>Incoming Customers</th>
+                <th>Unattended Customers</th>
+                <th>Served Customers</th>
+                <th>Golden Clients</th>
+                <th>Digital Tickets</th>
+                <th>Average Waiting Time</th>
+                <th>Average Service Time</th>
+                <th>Average Customer Time</th>
+                <th>Objective Waiting %</th>
+                <th>Objective Service %</th>
+                <th>Maximum Waiting Time</th>
+                <th>Maximum Service Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Data.Any())
             {
-                <tr>
-                    <td>@item.Level3Name</td>
-                    <td>@item.Level2Name</td>
-                    <td>@item.OfficeName</td>
-                    <td>@item.TotalTickets</td>
-                    <td>@item.AvgServiceSeconds:F2</td>
-                </tr>
+                <tr><td colspan="14" class="text-center">No data available</td></tr>
             }
-        }
-    </tbody>
-</table>
+            else
+            {
+                @foreach (var item in Data)
+                {
+                    <tr>
+                        <td>@item.OfficeNr</td>
+                        <td>@item.OfficeName</td>
+                        <td>@item.IncomingCustomers</td>
+                        <td>@item.UnattendedCustomers</td>
+                        <td>@item.ServedCustomers</td>
+                        <td>@item.GoldenClients</td>
+                        <td>@item.DigitalTickets</td>
+                        <td>@item.AvgWaitingTime.ToString("hh\\:mm\\:ss")</td>
+                        <td>@item.AvgServiceTime.ToString("hh\\:mm\\:ss")</td>
+                        <td>@item.AvgCustomerTime.ToString("hh\\:mm\\:ss")</td>
+                        <td>@item.ObjectiveWaitingPercent:F2</td>
+                        <td>@item.ObjectiveServicePercent:F2</td>
+                        <td>@item.MaxWaitingTime.ToString("hh\\:mm\\:ss")</td>
+                        <td>@item.MaxServiceTime.ToString("hh\\:mm\\:ss")</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
 
 @code {
     [Parameter]

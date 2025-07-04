@@ -1,47 +1,53 @@
 ﻿@page "/historical"
+@rendermode InteractiveServer
+@using System
+@using System.Collections.Generic
+@using System.Linq
+@using System.Threading.Tasks
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Forms
 @using UCStatistics.Services
 @using UCStatistics.Shared.DTOs
 @using UCStatistics.Components.Filters
 @using UCStatistics.Components.Tables
+
 @inject ReportService ReportService
 
 <PageTitle>Historical Statistics</PageTitle>
 
 <h3>Historical Statistics</h3>
 
-<EditForm Model="criteria" OnValidSubmit="LoadData">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+<div class="mb-3">
+    <label class="me-2">From:</label>
+    <input type="date" @bind="criteria.DateFrom" class="form-control d-inline-block w-auto" />
+    <label class="ms-3 me-2">To:</label>
+    <input type="date" @bind="criteria.DateTo" class="form-control d-inline-block w-auto" />
+</div>
 
-    <div class="d-flex flex-wrap gap-3 mb-3">
-        <DateRangePicker @bind-DateFrom="criteria.DateFrom"
-                         @bind-DateTo="criteria.DateTo" />
+<!-- Dropdowns for filtering -->
+<div class="d-flex flex-wrap gap-3 mb-3">
+    <AreaDropdown @bind-Value="criteria.Level3Nr" Areas="officesList" />
+    <CityDropdown @bind-Value="criteria.Level2Nr" Cities="officesList" />
+    <BranchDropdown @bind-Value="criteria.OfficeNrs" Offices="officesList" />
+</div>
 
-        <AreaDropdown @bind-Value="criteria.Level3Nr"
-                      Areas="officesList" />
-
-        <CityDropdown @bind-Value="criteria.Level2Nr"
-                      Cities="officesList" />
-
-        <BranchDropdown @bind-Value="criteria.OfficeNrs"
-                        Offices="officesList" />
-    </div>
-
-    <button type="submit" class="btn btn-primary">Submit</button>
-</EditForm>
+<button class="btn btn-primary mb-3" @onclick="LoadData">Submit</button>
 
 @if (isLoading)
 {
     <p><em>Loading...</em></p>
 }
-else if (data is not null)
+else if (data != null && data.Any())
 {
     <SummaryTable Data="data" />
+}
+else if (data != null)
+{
+    <p>No data available for @criteria.DateFrom:yyyy-MM-dd to @criteria.DateTo:yyyy-MM-dd.</p>
 }
 
 @code {
     private List<OfficeInfo> officesList = new();
-
     private FilterCriteria criteria = new FilterCriteria
         {
             DateFrom = DateTime.Today.AddDays(-7),
@@ -50,21 +56,22 @@ else if (data is not null)
             Level3Nr = null,
             OfficeNrs = new List<int>()
         };
-
     private IEnumerable<SummaryDto> data;
     private bool isLoading;
 
     protected override async Task OnInitializedAsync()
     {
         officesList = (await ReportService.GetOfficesAsync()).ToList();
-
         await LoadData();
     }
 
     private async Task LoadData()
     {
+        Console.WriteLine($"LoadData called: {DateTime.Now}");
         isLoading = true;
+        StateHasChanged();
         data = await ReportService.GetHistoricalAsync(criteria);
         isLoading = false;
+        StateHasChanged();
     }
 }

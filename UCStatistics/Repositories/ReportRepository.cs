@@ -26,41 +26,60 @@ namespace UCStatistics.Repositories
             using var conn = _db.CreateConnection();
             return await conn.QueryAsync<OfficeInfo>(sql);
         }
-        public async Task<IEnumerable<SummaryDto>> GetHistoricalAsync(FilterCriteria f)
+
+        public async Task<IEnumerable<SummaryDto>> GetHistoricalAsync(FilterCriteria criteria)
         {
+            const int digitalServiceTypeNr = 42;         // Κωδικός ψηφιακού εισιτηρίου
+            const int objectiveWaitingSeconds = 300;     // Στόχος αναμονής (σε sec)
+            const int objectiveServiceSeconds = 600;     // Στόχος εξυπηρέτησης (σε sec)
+
             const string sql = @"
-            SELECT
-                OFFICE_NR    AS OfficeNr,
-                OFFICE_NAME  AS OfficeName,
-                LEVEL2_NR    AS Level2Nr,
-                LEVEL2_NAME  AS Level2Name,
-                LEVEL3_NR    AS Level3Nr,
-                LEVEL3_NAME  AS Level3Name,
-                COUNT(*)     AS TotalTickets,
-                AVG(SERVICE_TIME)       AS AvgServiceSeconds
-            FROM CUSTOMER_QUEUE_INFO_DAILY
-            WHERE TICKET_DATE BETWEEN @DateFrom AND @DateTo
-              AND (@Level2Nr IS NULL OR LEVEL2_NR = @Level2Nr)
-              AND (@Level3Nr IS NULL OR LEVEL3_NR = @Level3Nr)
-              AND (@OfficeNrs IS NULL OR OFFICE_NR IN @OfficeNrs)
-            GROUP BY
-                OFFICE_NR, OFFICE_NAME,
-                LEVEL2_NR, LEVEL2_NAME,
-                LEVEL3_NR, LEVEL3_NAME
-            ORDER BY
-                LEVEL3_NAME, LEVEL2_NAME, OFFICE_NAME;
-        ";
+                SELECT
+                    LEVEL3_NR                               AS Level3Nr,
+                    LEVEL3_NAME                             AS Level3Name,
+                    LEVEL2_NR                               AS Level2Nr,
+                    LEVEL2_NAME                             AS Level2Name,
+                    OFFICE_NR                               AS OfficeNr,
+                    OFFICE_NAME                             AS OfficeName,
+                    COUNT(*)                                AS IncomingCustomers,
+                    SUM(CASE WHEN LOSTTICKET = 1 THEN 1 ELSE 0 END) AS UnattendedCustomers,
+                    SUM(CASE WHEN LOSTTICKET = 0 THEN 1 ELSE 0 END) AS ServedCustomers,
+                    SUM(CASE WHEN ICU = 'Y' THEN 1 ELSE 0 END)       AS GoldenClients,
+                    SUM(CASE WHEN SERVICETYPE_NR = @DigitalServiceTypeNr THEN 1 ELSE 0 END) AS DigitalTickets,
+                    CONVERT(time, DATEADD(SECOND, AVG(WAITING_TIME), 0))          AS AvgWaitingTime,
+                    CONVERT(time, DATEADD(SECOND, AVG(SERVICE_TIME), 0))          AS AvgServiceTime,
+                    CONVERT(time, DATEADD(SECOND, AVG(WAITING_TIME + SERVICE_TIME), 0)) AS AvgCustomerTime,
+                    AVG(CASE WHEN WAITING_TIME <= @ObjectiveWaitingSeconds THEN 1.0 ELSE 0 END) * 100   AS ObjectiveWaitingPercent,
+                    AVG(CASE WHEN SERVICE_TIME <= @ObjectiveServiceSeconds THEN 1.0 ELSE 0 END) * 100   AS ObjectiveServicePercent,
+                    CONVERT(time, DATEADD(SECOND, MAX(WAITING_TIME), 0))          AS MaxWaitingTime,
+                    CONVERT(time, DATEADD(SECOND, MAX(SERVICE_TIME), 0))          AS MaxServiceTime
+                FROM CUSTOMER_QUEUE_INFO_DAILY
+                WHERE
+                    TICKET_DATE BETWEEN @DateFrom AND @DateTo
+                    AND (@Level2Nr IS NULL OR LEVEL2_NR = @Level2Nr)
+                    AND (@Level3Nr IS NULL OR LEVEL3_NR = @Level3Nr)
+                    AND (@OfficeNrs IS NULL OR OFFICE_NR IN @OfficeNrs)
+                GROUP BY
+                    LEVEL3_NR, LEVEL3_NAME,
+                    LEVEL2_NR, LEVEL2_NAME,
+                    OFFICE_NR, OFFICE_NAME
+                ORDER BY
+                    LEVEL3_NAME, LEVEL2_NAME, OFFICE_NAME;";
 
             using var conn = _db.CreateConnection();
             return await conn.QueryAsync<SummaryDto>(sql, new
             {
-                f.DateFrom,
-                f.DateTo,
-                f.Level2Nr,
-                f.Level3Nr,
-                f.OfficeNrs
+                criteria.DateFrom,
+                criteria.DateTo,
+                criteria.Level2Nr,
+                criteria.Level3Nr,
+                OfficeNrs = criteria.OfficeNrs,
+                DigitalServiceTypeNr = digitalServiceTypeNr,
+                ObjectiveWaitingSeconds = objectiveWaitingSeconds,
+                ObjectiveServiceSeconds = objectiveServiceSeconds
             });
         }
+
 
         public async Task<IEnumerable<ServiceSummaryDto>> GetServiceSummaryAsync(FilterCriteria f)
         {
