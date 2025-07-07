@@ -44,8 +44,8 @@ namespace UCStatistics.Repositories
                     COUNT(*)                                AS IncomingCustomers,
                     SUM(CASE WHEN LOSTTICKET = 1 THEN 1 ELSE 0 END) AS UnattendedCustomers,
                     SUM(CASE WHEN LOSTTICKET = 0 THEN 1 ELSE 0 END) AS ServedCustomers,
-                    SUM(CASE WHEN ICU = 'Y' THEN 1 ELSE 0 END)       AS GoldenClients,
-                    SUM(CASE WHEN SERVICETYPE_NR = @DigitalServiceTypeNr THEN 1 ELSE 0 END) AS DigitalTickets,
+                    0 AS GoldenClients,
+                    0 AS DigitalTickets,
                     CONVERT(time, DATEADD(SECOND, AVG(WAITING_TIME), 0))          AS AvgWaitingTime,
                     CONVERT(time, DATEADD(SECOND, AVG(SERVICE_TIME), 0))          AS AvgServiceTime,
                     CONVERT(time, DATEADD(SECOND, AVG(WAITING_TIME + SERVICE_TIME), 0)) AS AvgCustomerTime,
@@ -100,8 +100,8 @@ namespace UCStatistics.Repositories
                     COUNT(*)         AS IncomingCustomers,
                     SUM(CASE WHEN LOSTTICKET = 1 THEN 1 ELSE 0 END) AS UnattendedCustomers,
                     SUM(CASE WHEN LOSTTICKET = 0 THEN 1 ELSE 0 END) AS ServedCustomers,
-                    SUM(CASE WHEN ICU = 'Y' THEN 1 ELSE 0 END)       AS GoldenClients,
-                    SUM(CASE WHEN SERVICETYPE_NR = @DigitalServiceTypeNr THEN 1 ELSE 0 END) AS DigitalTickets,
+                    0 AS GoldenClients,
+                    0 AS DigitalTickets,
                     CONVERT(time, DATEADD(SECOND, AVG(WAITING_TIME), 0))          AS AvgWaitingTime,
                     CONVERT(time, DATEADD(SECOND, AVG(SERVICE_TIME), 0))          AS AvgServiceTime,
                     CONVERT(time, DATEADD(SECOND, AVG(WAITING_TIME + SERVICE_TIME), 0)) AS AvgCustomerTime,
@@ -139,7 +139,6 @@ namespace UCStatistics.Repositories
 
         public async Task<IEnumerable<TicketDto>> GetTicketDetailsAsync(FilterCriteria criteria)
         {
-            // Detail per ticket – unchanged
             const string sql = @"
                 SELECT
                     LEVEL3_NR       AS Level3Nr,

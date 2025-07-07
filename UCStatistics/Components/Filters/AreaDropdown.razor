@@ -23,5 +23,6 @@
             Value = null;
 
         await ValueChanged.InvokeAsync(Value);
+        Console.WriteLine($"[DEBUG] Selected Area: {Value}");
     }
 }
