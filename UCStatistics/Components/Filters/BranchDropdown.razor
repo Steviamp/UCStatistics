@@ -1,5 +1,8 @@
 ﻿@using UCStatistics.Shared.DTOs
 <select multiple class="form-select" @onchange="OnSelectionChanged">
+    <option value="ALL" selected="@(Value == null || !Value.Any())">
+        All Branches
+    </option>
     @foreach (var o in Offices)
     {
         <option value="@o.OfficeNr" selected="@Value.Contains(o.OfficeNr)">
@@ -9,15 +12,27 @@
 </select>
 
 @code {
+    
     [Parameter] public List<int> Value { get; set; } = new();
     [Parameter] public EventCallback<List<int>> ValueChanged { get; set; }
 
-    [Parameter] public IEnumerable<OfficeInfo> Offices { get; set; }
+    [Parameter] public IEnumerable<OfficeInfo> Offices { get; set; } = Enumerable.Empty<OfficeInfo>();
 
     private async Task OnSelectionChanged(ChangeEventArgs e)
     {
-        var selected = ((string[])e.Value).Select(int.Parse).ToList();
-        Value = selected;
-        await ValueChanged.InvokeAsync(Value);
+        var selectedRaw = e.Value as string[];
+        if (selectedRaw != null)
+        {
+            if (selectedRaw.Contains("ALL"))
+            {
+                Value = new List<int>();
+            }
+            else
+            {
+                Value = selectedRaw.Select(int.Parse).ToList();
+            }
+            await ValueChanged.InvokeAsync(Value);
+        }
     }
 }
+

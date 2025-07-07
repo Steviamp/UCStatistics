@@ -1,40 +1,64 @@
-﻿@using UCStatistics.Shared.DTOs
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Area</th>
-            <th>City</th>
-            <th>Office</th>
-            <th>Service Code</th>
-            <th>Service Name</th>
-            <th>Total Services</th>
-            <th>Avg Service (sec)</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (Data?.Any() != true)
-        {
-            <tr><td colspan="7" class="text-center">No data available</td></tr>
-        }
-        else
-        {
-            @foreach (var item in Data)
+﻿@using System.Linq
+@using UCStatistics.Shared.DTOs
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Area</th>
+                <th>City</th>
+                <th>Office</th>
+                <th>Service Code</th>
+                <th>Service Name</th>
+                <th>Incoming</th>
+                <th>Unattended</th>
+                <th>Served</th>
+                <th>Golden</th>
+                <th>Digital Tickets</th>
+                <th>Avg Wait</th>
+                <th>Avg Service</th>
+                <th>Avg Total</th>
+                <th>Obj Wait %</th>
+                <th>Obj Service %</th>
+                <th>Max Wait</th>
+                <th>Max Service</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Data.Any())
             {
-                <tr>
-                    <td>@item.Level3Name</td>
-                    <td>@item.Level2Name</td>
-                    <td>@item.OfficeName</td>
-                    <td>@item.ServiceCode</td>
-                    <td>@item.ServiceName</td>
-                    <td>@item.TotalServices</td>
-                    <td>@item.AvgServiceSeconds:F2</td>
-                </tr>
+                <tr><td colspan="17" class="text-center">No service data available</td></tr>
             }
-        }
-    </tbody>
-</table>
+            else
+            {
+                @foreach (var item in Data)
+                {
+                    <tr>
+                        <td>@item.Level3Name</td>
+                        <td>@item.Level2Name</td>
+                        <td>@item.OfficeName</td>
+                        <td>@item.ServiceCode</td>
+                        <td>@item.ServiceName</td>
+                        <td>@item.IncomingCustomers</td>
+                        <td>@item.UnattendedCustomers</td>
+                        <td>@item.ServedCustomers</td>
+                        <td>@item.GoldenClients</td>
+                        <td>@item.DigitalTickets</td>
+                        <td>@item.AvgWaitingTime.ToString("hh\\:mm\\:ss")</td>
+                        <td>@item.AvgServiceTime.ToString("hh\\:mm\\:ss")</td>
+                        <td>@item.AvgCustomerTime.ToString("hh\\:mm\\:ss")</td>
+                        <td>@item.ObjectiveWaitingPercent.ToString("F2")</td>
+                        <td>@item.ObjectiveServicePercent.ToString("F2")</td>
+                        <td>@item.MaxWaitingTime.ToString("hh\\:mm\\:ss")</td>
+                        <td>@item.MaxServiceTime.ToString("hh\\:mm\\:ss")</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
 
 @code {
     [Parameter]
-    public IEnumerable<ServiceSummaryDto> Data { get; set; }
+    public IEnumerable<ServiceSummaryDto> Data { get; set; } = Enumerable.Empty<ServiceSummaryDto>();
 }
